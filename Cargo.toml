@@ -39,6 +39,7 @@ dev = [
 [dependencies]
 bevy = { version = "0.16", features = [ "wayland" ] }
 rand = { version = "0.8.3" }
+bevy_rand = { version = "0.11", features = ["wyrand"] }
 # keep the following in sync with Bevy's dependencies
 winit = { version = "*", default-features = false }
 image = { version = "*", default-features = false }
