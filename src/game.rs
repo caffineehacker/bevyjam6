@@ -27,7 +27,11 @@ impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.init_state::<GameState>()
             .add_plugins(MenuPlugin)
-            .add_systems(OnEnter(GameState::Playing), spawn_everything);
+            .add_systems(OnEnter(GameState::Playing), spawn_everything)
+            .add_systems(
+                FixedUpdate,
+                (move_random).run_if(in_state(GameState::Playing)),
+            );
 
         #[cfg(debug_assertions)]
         {
@@ -62,6 +66,16 @@ fn spawn_everything(
                 translation: Vec3 { x, y, z: 0. },
                 ..default()
             },
+            rng.fork_rng(),
         ));
     }
+}
+
+fn move_random(mut q: Query<(&mut Transform, &mut Entropy<WyRand>), With<Creature>>) {
+    q.par_iter_mut().for_each(|(mut t, mut rng)| {
+        let move_distance = rng.gen_range(0.0..=5.0);
+        let rotation = Rot2::degrees(rng.gen_range(-180.0..=180.0));
+        t.translation.x += rotation.cos * move_distance;
+        t.translation.y += rotation.sin * move_distance;
+    });
 }
